@@ -1,8 +1,11 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
 import numpy as np
 import gc
 from sklearn.utils import resample
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTENC
 
 def load_data(filepath):
     df = pd.read_csv(filepath, header=None)
@@ -64,25 +67,24 @@ def select_labeled_data(df, target_column='income', missing_value='Unknown'):
     df = df[df[target_column] != missing_value]
     return df
 
-def preprocess(df):
+def get_categorical_columns_names(df):
+    cols = df.columns
+    num_cols = df._get_numeric_data().columns
+    categorical_columns = list(set(cols) - set(num_cols))
+    return categorical_columns
+
+def preprocess_trees(df):
     df = correct_erroneous(df)
     df = correct_missing(df)
     df = select_labeled_data(df)
-    print(f"Initial Training Set Size: {len(df)}")
-
     df, target = separate_target(df)
 
-    df_resample1, target_resample1 = resample_df(df, target, 'employment_type', [' Private'])
-    df_resample2, target_resample2 = resample_df(df, target, 'ethnicity', [' White'])
-    df_resample3, target_resample3 = resample_df(df, target, 'gender', [' Male'])
-    df_resample4, target_resample4 = resample_df(df, target, 'country', [' United-States'])
-    df_resample5, target_resample5 = resample_df(df, target, 'marital_status', [' Married-civ-spouse', ' Never-married'])
+    print(f"Initial Training Set Size: {len(df)}")
 
-    df = pd.concat([df_resample1, df_resample2, df_resample3, df_resample4, df_resample5])
-    target = pd.concat([target_resample1, target_resample2, target_resample3, target_resample4, target_resample5])
+    smote = SMOTENC(categorical_features=get_categorical_columns_names(df), random_state=42)
+    df, target = smote.fit_resample(df, target)
 
-    del df_resample1, df_resample2, df_resample3, df_resample4, df_resample5
-    del target_resample1, target_resample2, target_resample3, target_resample4, target_resample5
+    print(f"Resampled Training Set Size: {len(df)}")
 
     df = apply_log_normalization(df, 'gains_financial')
     df = apply_log_normalization(df, 'losses_financial')
@@ -90,6 +92,39 @@ def preprocess(df):
     df = hot_encoding(df)
 
     gc.collect()
+
+    return df, target
+
+def preprocess_logistic(df):
+    df = correct_erroneous(df)
+    df = correct_missing(df)
+    df = select_labeled_data(df)
+    df, target = separate_target(df)
+
+    print(f"Initial Training Set Size: {len(df)}")
+
+    # smote = SMOTENC(categorical_features=get_categorical_columns_names(df), random_state=42)
+    # df, target = smote.fit_resample(df, target)
+
+    print(f"Resampled Training Set Size: {len(df)}")
+
+    df = apply_log_normalization(df, 'gains_financial')
+    df = apply_log_normalization(df, 'losses_financial')
+
+    df = hot_encoding(df)
+
+    gc.collect()
+
+    return df, target
+
+def preprocess_random_forest(df):
+    df = apply_log_normalization(df, 'gains_financial')
+    df = apply_log_normalization(df, 'losses_financial')
+    df = correct_erroneous(df)
+    df = correct_missing(df)
+    df = select_labeled_data(df)
+    
+    df, target = separate_target(df)
 
     return df, target
 
@@ -133,6 +168,6 @@ def resample_df(X, y, category, value, random_state=42):
 
 
 def apply_log_normalization(df, column):
-    df[column] = np.log1p(df[column])
+    df.loc[:,[column]] = np.log1p(df.loc[:,[column]].astype(float))
     
     return df

@@ -67,9 +67,7 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_mod
 def main():
     df = load_data("./data/einkommen.train")
 
-    df, target = preprocess(df)
-
-    print(f"Resampled Training Set Size: {len(df)}")
+    df, target = preprocess_trees(df)
 
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(df, target)
  

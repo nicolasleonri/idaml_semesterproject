@@ -1,13 +1,16 @@
 from utils import *
 import gc
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
-from sklearn.linear_model import LogisticRegression
-from sklearn import svm, datasets
+from sklearn.model_selection import KFold
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, recall_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import ParameterGrid
 
 def k_fold_cross_validation(X_train, y_train, param_grid, pos_label=' >50K', random_state=42):
-    """Perform K-Fold cross-validation to find the best Logistic Regression model."""
+    """Perform K-Fold cross-validation to find the best Random Forest model."""
     kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
     best_score = 0
     best_model = None
@@ -19,10 +22,11 @@ def k_fold_cross_validation(X_train, y_train, param_grid, pos_label=' >50K', ran
             X_fold_train, X_fold_val = X_train.iloc[train_index], X_train.iloc[val_index]
             y_fold_train, y_fold_val = y_train.iloc[train_index], y_train.iloc[val_index]
 
-            model = LogisticRegression(**params, random_state=random_state, max_iter=10000)
+            model = RandomForestClassifier(**params, random_state=random_state)
             model.fit(X_fold_train, y_fold_train)
-            y_k_val_pred = model.predict(X_fold_val)
 
+            y_k_val_pred = model.predict(X_fold_val)
+            
             accuracies.append(accuracy_score(y_fold_val, y_k_val_pred))
             recalls.append(recall_score(y_fold_val, y_k_val_pred, pos_label=pos_label))
 
@@ -31,50 +35,42 @@ def k_fold_cross_validation(X_train, y_train, param_grid, pos_label=' >50K', ran
                 best_model = model
 
     average_accuracy = sum(accuracies) / len(accuracies)
-    average_recall = sum(recalls) / len(recalls)
-
+    average_recall = sum(recalls) / len(recalls)    
+    
     return best_model, average_accuracy, average_recall
 
-def nested_cross_validation(X_train, y_train, X_val, y_val, best_model, param_grid, pos_label=' >50K', random_state=42):
+def nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_model, pos_label=' >50K', random_state=42):
+    """Perform nested cross-validation to fine-tune the best Random Forest model."""
     grid_search = GridSearchCV(
         best_model,
         param_grid,
-        cv=5,
+        cv=5,  # Inner cross-validation folds
         scoring='accuracy',
-        n_jobs=-1
+        n_jobs=-1  # Use all available cores
     )
 
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
 
     y_val_pred = best_model.predict(X_val)
-    val_accuracy = accuracy_score(y_val, y_val_pred)
-    val_recall = recall_score(y_val, y_val_pred, pos_label=pos_label)
+
+    val_accuracy = best_model.score(X_val, y_val)
+    val_recall = classification_report(y_val, y_val_pred, output_dict=True)[pos_label]['recall']
 
     return best_model, val_accuracy, val_recall
-
-def evaluate_model(model, X_test, y_test):
-    """Evaluate the logistic regression model on the test set."""
-    y_test_pred = model.predict(X_test)
-    test_accuracy = accuracy_score(y_test, y_test_pred)
-    test_report = classification_report(y_test, y_test_pred)
-    test_confusion = confusion_matrix(y_test, y_test_pred)
-
-    return test_accuracy, test_report, test_confusion
 
 def main():
     df = load_data("./data/einkommen.train")
 
-    # df, target = preprocess_trees(df)
-    df, target = preprocess_logistic(df)
+    df, target = preprocess_trees(df)
 
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(df, target)
     
-    # Define parameter grid for hyperparameter tuning
     param_grid = {
-        'C': [0.001, ], #0.01, 0.1, 1, 10, 100
-        'penalty': ['l2'],
-        'class_weight': ['balanced'] #None, 
+        'n_estimators': [50, ], #100, 200
+        'max_depth': [None, 5, ], #10, 15
+        'min_samples_split': [20, ], #5, 10
+        'class_weight': ['balanced', ] #None
     }
 
     best_model, average_accuracy, average_recall = k_fold_cross_validation(X_train, y_train, param_grid)
@@ -82,12 +78,20 @@ def main():
     print(f"Average K-Fold Accuracy: {average_accuracy:.4f}")
     print(f"Average K-Fold Recall: {average_recall:.4f}")
 
-    best_model, average_accuracy, average_recall = nested_cross_validation(X_train, y_train, X_val, y_val, best_model, param_grid)
+    param_grid = {
+        'max_depth': [None, 5, 10, 15],  # None means no limit
+        'min_samples_split': [2, 5, 10]
+    }
 
+    best_decision_tree_model, average_accuracy, average_recall = nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_model)
     print(f"Nested-Cross Accuracy: {average_accuracy:.4f}")
     print(f"Nested-Cross Recall: {average_recall:.4f}")
 
-    test_accuracy, test_report, test_confusion = evaluate_model(best_model, X_test, y_test)
+    # Final evaluation on the test set
+    y_test_pred = best_decision_tree_model.predict(X_test)
+    test_accuracy = accuracy_score(y_test, y_test_pred)
+    test_report = classification_report(y_test, y_test_pred)
+    test_confusion = confusion_matrix(y_test, y_test_pred)
 
     print("Test Accuracy:", test_accuracy)
     print("Test Classification Report:\n", test_report)

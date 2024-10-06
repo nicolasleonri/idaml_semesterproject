@@ -1,0 +1,41 @@
+country,Frequency,Proportion
+ United-States,4465,0.893
+ Mexico,104,0.0208
+nan,97,0.0194
+ Canada,28,0.0056
+ Philippines,22,0.0044
+ Germany,22,0.0044
+ El-Salvador,16,0.0032
+ Puerto-Rico,16,0.0032
+ England,16,0.0032
+ Jamaica,15,0.003
+ China,15,0.003
+ Cuba,14,0.0028
+ Dominican-Republic,13,0.0026
+ Italy,12,0.0024
+ India,12,0.0024
+ Iran,11,0.0022
+ Vietnam,10,0.002
+ Taiwan,10,0.002
+ Guatemala,10,0.002
+ Poland,9,0.0018
+ South,9,0.0018
+ Japan,9,0.0018
+ Portugal,7,0.0014
+ Greece,6,0.0012
+ Haiti,6,0.0012
+Colombia,5,0.001
+ Nicaragua,5,0.001
+Trinidad&Tobago,4,0.0008
+ Ireland,4,0.0008
+ Ecuador,4,0.0008
+ Cambodia,4,0.0008
+ France,3,0.0006
+ Peru,3,0.0006
+ Outlying-US(Guam-USVI-etc),3,0.0006
+ Honduras,3,0.0006
+ Yugoslavia,2,0.0004
+ Thailand,2,0.0004
+ Laos,2,0.0004
+ Scotland,1,0.0002
+ Hong,1,0.0002

@@ -61,6 +61,7 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, best_model_architect
     best_params = None
     accuracies = []
     recalls = []
+    results = []
 
     for params in param_grid:
         # Build model with the best architecture but with new hyperparameters
@@ -87,8 +88,19 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, best_model_architect
             best_model = model
             best_params = params
 
+        results.append({
+            'dropout_rate': params.get('dropout_rate', None),  # Adjust based on your actual param names
+            'learning_rate': params.get('learning_rate', None),
+            'Accuracy': accuracies[-1],
+            'Recall': recalls[-1]
+        })
+
     average_accuracy = sum(accuracies) / len(accuracies)
     average_recall = sum(recalls) / len(recalls)
+
+    results_df = pd.DataFrame(results)
+    results_df.to_csv('./results/nn_validation_results.csv', index=False)
+    plot_results_nn(results_df, './results/nn_validation_results.png')
 
     return best_model, best_params, average_accuracy, average_recall
 
@@ -134,8 +146,11 @@ def main():
     print(f"Average K-Fold Recall: {average_recall:.4f}")
 
     param_grid = [
-        {'dropout_rate': 0.5, 'learning_rate': 0.001},
-       # {'dropout_rate': 0.3, 'learning_rate': 0.0005}
+    {'dropout_rate': 0.2, 'learning_rate': 0.001, 'batch_size': 16},
+    {'dropout_rate': 0.3, 'learning_rate': 0.001, 'batch_size': 32},
+    {'dropout_rate': 0.5, 'learning_rate': 0.001, 'batch_size': 64},
+    {'dropout_rate': 0.5, 'learning_rate': 0.0005, 'batch_size': 16},
+    {'dropout_rate': 0.5, 'learning_rate': 0.01, 'batch_size': 32},
     ]
 
     best_model, best_params, average_accuracy, average_recall = nested_cross_validation(X_train, y_train, X_val, y_val, best_model, param_grid)
@@ -154,6 +169,11 @@ def main():
     print(f"Optimal Threshold: {optimal_threshold}, Best F1-Score: {best_f1}")
 
     test_accuracy, test_report, test_confusion = evaluate_model(best_model, X_test, y_test, optimal_threshold)
+
+    y_test_proba = best_model.predict(X_test).flatten()  # Get probabilities for the positive class
+    # Convert string labels to numeric labels
+    plot_auc(y_test, y_test_proba, './results/roc_curve_nn.png')
+
 
 
     print("Test Accuracy:", test_accuracy)

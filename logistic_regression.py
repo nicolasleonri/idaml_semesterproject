@@ -46,6 +46,10 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, best_model, param_gr
 
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
+    results_df = pd.DataFrame(grid_search.cv_results_)
+    results_df.to_csv('./results/logistic_regression_grid_search_results.csv', index=False)
+    plot_results_logistic(results_df, './results/logistic_validation_hyperparameters.png')
+
 
     y_val_pred = best_model.predict(X_val)
     val_accuracy = accuracy_score(y_val, y_val_pred)
@@ -72,9 +76,9 @@ def main():
     
     # Define parameter grid for hyperparameter tuning
     param_grid = {
-        'C': [0.001, ], #0.01, 0.1, 1, 10, 100
+        'C': [0.001, 0.01, ], #0.1, 1, 10, 100
         'penalty': ['l2'],
-        'class_weight': ['balanced'] #None, 
+        'class_weight': ['balanced', None] #, 
     }
 
     best_model, average_accuracy, average_recall = k_fold_cross_validation(X_train, y_train, param_grid)
@@ -88,6 +92,11 @@ def main():
     print(f"Nested-Cross Recall: {average_recall:.4f}")
 
     test_accuracy, test_report, test_confusion = evaluate_model(best_model, X_test, y_test)
+        
+    y_test_proba = best_model.predict_proba(X_test)[:, 1]  # Get probabilities for the positive class
+    y_test_numeric = [1 if label == ' >50K' else 0 for label in y_test]  # Mapping ' >50K' to 1 and ' <=50K' to 0
+    plot_auc(y_test_numeric, y_test_proba, './results/roc_curve_logreg.png')
+
 
     print("Test Accuracy:", test_accuracy)
     print("Test Classification Report:\n", test_report)

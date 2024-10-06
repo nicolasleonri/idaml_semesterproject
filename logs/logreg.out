@@ -1,0 +1,22 @@
+Missing values table saved to ./csv/missing_values.csv
+Summary of continuous variables saved to ./csv/prior/continous_summary.csv
+Initial Training Set Size: 5000
+Resampled Training Set Size: 5000
+Average K-Fold Accuracy: 0.8046
+Average K-Fold Recall: 0.6105
+Nested-Cross Accuracy: 0.8040
+Nested-Cross Recall: 0.4098
+Test Accuracy: 0.8253333333333334
+Test Classification Report:
+               precision    recall  f1-score   support
+
+       <=50K       0.85      0.94      0.89       567
+        >50K       0.71      0.48      0.57       183
+
+    accuracy                           0.83       750
+   macro avg       0.78      0.71      0.73       750
+weighted avg       0.81      0.83      0.81       750
+
+Test Confusion Matrix:
+ [[532  35]
+ [ 96  87]]

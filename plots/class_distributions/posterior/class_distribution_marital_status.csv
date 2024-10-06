@@ -1,0 +1,8 @@
+marital_status,Frequency,Proportion
+ Married-civ-spouse,4587,0.6069065890447208
+ Never-married,1795,0.2374966922466261
+ Divorced,782,0.10346652553585604
+ Widowed,162,0.0214342418629267
+ Separated,161,0.021301931727970364
+ Married-spouse-absent,66,0.008732468907118285
+ Married-AF-spouse,5,0.0006615506747816883

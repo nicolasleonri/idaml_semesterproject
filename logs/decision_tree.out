@@ -1,0 +1,30 @@
+Initial Training Set Size: 5000
+File ./plots/class_distributions/posterior/class_distribution_ethnicity.png created.
+File ./plots/class_distributions/posterior/class_distribution_ethnicity.csv created.
+File ./plots/class_distributions/posterior/class_distribution_level_of_education.png created.
+File ./plots/class_distributions/posterior/class_distribution_level_of_education.csv created.
+File ./plots/class_distributions/posterior/class_distribution_partnership.png created.
+File ./plots/class_distributions/posterior/class_distribution_partnership.csv created.
+File ./plots/class_distributions/posterior/class_distribution_employment_area.png created.
+File ./plots/class_distributions/posterior/class_distribution_employment_area.csv created.
+Class ratios saved to ./csv/posterior/_ratios_categorical.csv
+Resampled Training Set Size: 7558
+Summary of continuous variables saved to ./csv/posterior/continous_summary.csv
+Average K-Fold Accuracy: 0.8253
+Average K-Fold Recall: 0.8964
+Nested-Cross Accuracy: 0.8915
+Nested-Cross Recall: 0.9436
+Test Accuracy: 0.8253968253968254
+Test Classification Report:
+               precision    recall  f1-score   support
+
+       <=50K       0.89      0.75      0.81       567
+        >50K       0.78      0.90      0.84       567
+
+    accuracy                           0.83      1134
+   macro avg       0.83      0.83      0.82      1134
+weighted avg       0.83      0.83      0.82      1134
+
+Test Confusion Matrix:
+ [[424 143]
+ [ 55 512]]

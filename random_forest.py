@@ -49,8 +49,12 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_mod
         n_jobs=-1  # Use all available cores
     )
 
-    grid_search.fit(X_train, y_train)
+    grid_search.fit(X_val, y_val)
     best_model = grid_search.best_estimator_
+
+    results_df = pd.DataFrame(grid_search.cv_results_)
+    results_df.to_csv('./results/random_forest_grid_search_results.csv', index=False)
+    plot_results_trees(results_df, './results/random_forest_validation_hyperparameters.png', 'YES')
 
     y_val_pred = best_model.predict(X_val)
 
@@ -67,10 +71,7 @@ def main():
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(df, target)
     
     param_grid = {
-        'n_estimators': [50, ], #100, 200
-        'max_depth': [None, 5, ], #10, 15
-        'min_samples_split': [20, ], #5, 10
-        'class_weight': ['balanced', ] #None
+        'n_estimators': [50, 100, 200], 
     }
 
     best_model, average_accuracy, average_recall = k_fold_cross_validation(X_train, y_train, param_grid)
@@ -79,8 +80,9 @@ def main():
     print(f"Average K-Fold Recall: {average_recall:.4f}")
 
     param_grid = {
-        'max_depth': [None, 5, 10, 15],  # None means no limit
-        'min_samples_split': [2, 5, 10]
+        'max_depth': [None, 5, 10, 15],  
+        'min_samples_split': [20, 5, 10], 
+        'class_weight': ['balanced'] # None
     }
 
     best_decision_tree_model, average_accuracy, average_recall = nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_model)
@@ -89,9 +91,15 @@ def main():
 
     # Final evaluation on the test set
     y_test_pred = best_decision_tree_model.predict(X_test)
+    y_test_proba = best_decision_tree_model.predict_proba(X_test)[:, 1]  # Get probabilities for the positive class
+    y_test_numeric = [1 if label == ' >50K' else 0 for label in y_test]  # Mapping ' >50K' to 1 and ' <=50K' to 0
+
     test_accuracy = accuracy_score(y_test, y_test_pred)
     test_report = classification_report(y_test, y_test_pred)
     test_confusion = confusion_matrix(y_test, y_test_pred)
+
+    plot_auc(y_test_numeric, y_test_proba, './results/roc_curve_random_forest.png')
+
 
     print("Test Accuracy:", test_accuracy)
     print("Test Classification Report:\n", test_report)

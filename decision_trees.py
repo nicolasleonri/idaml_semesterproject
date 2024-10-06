@@ -4,6 +4,9 @@ from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, recall_score
 from sklearn.model_selection import GridSearchCV
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def train_decision_tree(X_train, y_train, k_folds=5, max_depth=None, min_samples_split=2, pos_label=' >50K', random_state=42):
     kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
@@ -52,10 +55,15 @@ def nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, best_mod
     )
 
     # Fit the model on the training set
-    grid_search.fit(X_train, y_train)
+    grid_search.fit(X_val, y_val)
     
     # Best model from grid search
     best_model = grid_search.best_estimator_
+
+    # Prepare results DataFrame from GridSearchCV results
+    results_df = pd.DataFrame(grid_search.cv_results_)
+    results_df.to_csv('./results/decision_tree_grid_search_results.csv', index=False)
+    plot_results_trees(results_df, './results/decision_tree_validation_hyperparameters.png')
 
     y_val_pred = best_model.predict(X_val)
 
@@ -77,8 +85,8 @@ def main():
     print(f"Average K-Fold Recall: {average_recall:.4f}")
 
     param_grid = {
-        'max_depth': [None, 5, 10, 15],  # None means no limit
-        'min_samples_split': [2, 5, 10]
+        'max_depth': [None, 5, 10, 15, 20, 25],  # None means no limit
+        'min_samples_split': [2, 5, 10, 15, 20],  # Minimum number of samples required to split an internal node
     }
 
     best_decision_tree_model, average_accuracy, average_recall = nested_cross_validation(X_train, y_train, X_val, y_val, param_grid, decision_tree_model)
@@ -87,9 +95,15 @@ def main():
 
     # Final evaluation on the test set
     y_test_pred = best_decision_tree_model.predict(X_test)
+    y_test_proba = best_decision_tree_model.predict_proba(X_test)[:, 1]  # Get probabilities for the positive class
+    y_test_numeric = [1 if label == ' >50K' else 0 for label in y_test]  # Mapping ' >50K' to 1 and ' <=50K' to 0
+
     test_accuracy = accuracy_score(y_test, y_test_pred)
     test_report = classification_report(y_test, y_test_pred)
     test_confusion = confusion_matrix(y_test, y_test_pred)
+
+
+    plot_auc(y_test_numeric, y_test_proba, './results/roc_curve_decision_tree.png')
 
     print("Test Accuracy:", test_accuracy)
     print("Test Classification Report:\n", test_report)

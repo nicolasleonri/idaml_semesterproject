@@ -1,0 +1,9 @@
+employment_type,Frequency,Proportion
+ Private,3435,0.687
+ Self-emp-not-inc,383,0.0766
+nan,331,0.0662
+ Local-gov,329,0.0658
+ State-gov,193,0.0386
+ Self-emp-inc,182,0.0364
+ Federal-gov,146,0.0292
+ Without-pay,1,0.0002

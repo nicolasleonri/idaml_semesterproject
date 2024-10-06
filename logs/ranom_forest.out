@@ -1,0 +1,53 @@
+File ./plots/class_distributions/prior/class_distribution_country.png created.
+File ./plots/class_distributions/prior/class_distribution_country.csv created.
+File ./plots/class_distributions/prior/class_distribution_marital_status.png created.
+File ./plots/class_distributions/prior/class_distribution_marital_status.csv created.
+File ./plots/class_distributions/prior/class_distribution_employment_type.png created.
+File ./plots/class_distributions/prior/class_distribution_employment_type.csv created.
+File ./plots/class_distributions/prior/class_distribution_ethnicity.png created.
+File ./plots/class_distributions/prior/class_distribution_ethnicity.csv created.
+File ./plots/class_distributions/prior/class_distribution_gender.png created.
+File ./plots/class_distributions/prior/class_distribution_gender.csv created.
+File ./plots/class_distributions/prior/class_distribution_level_of_education.png created.
+File ./plots/class_distributions/prior/class_distribution_level_of_education.csv created.
+File ./plots/class_distributions/prior/class_distribution_employment_area.png created.
+File ./plots/class_distributions/prior/class_distribution_employment_area.csv created.
+File ./plots/class_distributions/prior/class_distribution_partnership.png created.
+File ./plots/class_distributions/prior/class_distribution_partnership.csv created.
+Class ratios saved to ./csv/prior/_ratios_categorical.csv
+Initial Training Set Size: 5000
+File ./plots/class_distributions/posterior/class_distribution_country.png created.
+File ./plots/class_distributions/posterior/class_distribution_country.csv created.
+File ./plots/class_distributions/posterior/class_distribution_marital_status.png created.
+File ./plots/class_distributions/posterior/class_distribution_marital_status.csv created.
+File ./plots/class_distributions/posterior/class_distribution_employment_type.png created.
+File ./plots/class_distributions/posterior/class_distribution_employment_type.csv created.
+File ./plots/class_distributions/posterior/class_distribution_ethnicity.png created.
+File ./plots/class_distributions/posterior/class_distribution_ethnicity.csv created.
+File ./plots/class_distributions/posterior/class_distribution_gender.png created.
+File ./plots/class_distributions/posterior/class_distribution_gender.csv created.
+File ./plots/class_distributions/posterior/class_distribution_level_of_education.png created.
+File ./plots/class_distributions/posterior/class_distribution_level_of_education.csv created.
+File ./plots/class_distributions/posterior/class_distribution_employment_area.png created.
+File ./plots/class_distributions/posterior/class_distribution_employment_area.csv created.
+Class ratios saved to ./csv/posterior/_ratios_categorical.csv
+Resampled Training Set Size: 7558
+Summary of continuous variables saved to ./csv/posterior/continous_summary.csv
+Average K-Fold Accuracy: 0.8737
+Average K-Fold Recall: 0.8853
+Nested-Cross Accuracy: 0.9647
+Nested-Cross Recall: 0.9841
+Test Accuracy: 0.8677248677248677
+Test Classification Report:
+               precision    recall  f1-score   support
+
+       <=50K       0.90      0.82      0.86       567
+        >50K       0.84      0.91      0.87       567
+
+    accuracy                           0.87      1134
+   macro avg       0.87      0.87      0.87      1134
+weighted avg       0.87      0.87      0.87      1134
+
+Test Confusion Matrix:
+ [[467 100]
+ [ 50 517]]
